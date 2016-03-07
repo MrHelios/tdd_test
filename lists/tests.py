@@ -25,11 +25,37 @@ class HomePageTest(TestCase):
 
         response = home_page(request)
 
-        self.assertIn('Un nuevo item', response.content.decode())
+        self.assertEqual(Item.objects.count(), 1)
+        nuevo_item = Item.objects.first()
+        self.assertEqual(nuevo_item.text, 'Un nuevo item')
+
         html_esperado = render_to_string(
                 'home.html',
                 {'new_item_text': 'Un nuevo item'}, request=request)
-        self.assertEqual(response.content.decode(), html_esperado)
+
+    def test_home_pagina_solo_guardado_items(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'Una nueva lista item'
+
+        response = home_page(request)
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'Una nueva lista item')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+    def test_home_pagina_display_toda_lista(self):
+        Item.objects.create(text='item 1')
+        Item.objects.create(text='item 2')
+
+        request = HttpRequest()
+        response = home_page(request)
+
+        self.assertIn('item 1', response.content.decode())
+        self.assertIn('item 2', response.content.decode())
 
 class ItemModelTest(TestCase):
 

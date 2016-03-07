@@ -12,6 +12,15 @@ class NuevoVisitorTest(unittest.TestCase):
         self.navegador.quit()
 
     def check_fila_tabla(self, fila_text):
+        # Agrega un nuevo item.
+        inputbox = self.navegador.find_element_by_id('id_new_item')
+        self.assertEqual(
+                inputbox.get_attribute('placeholder'),
+                'Pon un item.'
+        )
+        inputbox.send_keys(fila_text)
+        inputbox.send_keys(Keys.ENTER)
+
         tabla = self.navegador.find_element_by_id('id_list_table')
         filas = tabla.find_elements_by_tag_name('tr')
         self.assertIn(fila_text, [fila.text for fila in filas])
@@ -27,21 +36,12 @@ class NuevoVisitorTest(unittest.TestCase):
         header_text = self.navegador.find_element_by_tag_name('h1').text
         self.assertIn('Hacer', header_text)
 
-        # Agrega un nuevo item.
-        inputbox = self.navegador.find_element_by_id('id_new_item')
-        self.assertEqual(
-                inputbox.get_attribute('placeholder'),
-                'Pon un item.'
-        )
-        inputbox.send_keys('Comprar una pluma de pajaro.')
-        inputbox.send_keys(Keys.ENTER)
-
         # En este momento la pagina se actualiza.
         # Ahora aparece el nuevo item agregado por el usuario.
         # Comprar una pluma de pajaro.
 
-        self.check_fila_tabla('1. Comprar una pluma de pajaro.')
-        self.check_fila_tabla('2. Usar la pluma de pajaro.')
+        self.check_fila_tabla('Comprar una pluma de pajaro.')
+        self.check_fila_tabla('Usar la pluma de pajaro.')
 
         self.fail('Test finalizado.')
 
