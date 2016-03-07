@@ -11,6 +11,11 @@ class NuevoVisitorTest(unittest.TestCase):
     def tearDown(self):
         self.navegador.quit()
 
+    def check_fila_tabla(self, fila_text):
+        tabla = self.navegador.find_element_by_id('id_list_table')
+        filas = tabla.find_elements_by_tag_name('tr')
+        self.assertIn(fila_text, [fila.text for fila in filas])
+
     def test_can_start_list_retrieve(self):
         # Entrar a la pagina principal.
         self.navegador.get('http://localhost:8000/')
@@ -34,12 +39,9 @@ class NuevoVisitorTest(unittest.TestCase):
         # En este momento la pagina se actualiza.
         # Ahora aparece el nuevo item agregado por el usuario.
         # Comprar una pluma de pajaro.
-        tabla = self.navegador.find_element_by_id('id_list_table')
-        filas = tabla.find_elements_by_tag_name('tr')
-        self.assertTrue(
-                any(fila.text == '1. Comprar una pluma de pajaro' for fila in filas),
-                "No hay ningun item nuevo."
-        )
+
+        self.check_fila_tabla('1. Comprar una pluma de pajaro.')
+        self.check_fila_tabla('2. Usar la pluma de pajaro.')
 
         self.fail('Test finalizado.')
 
