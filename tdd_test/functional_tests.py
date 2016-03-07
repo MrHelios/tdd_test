@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 import unittest
 
 class NuevoVisitorTest(unittest.TestCase):
@@ -18,14 +19,14 @@ class NuevoVisitorTest(unittest.TestCase):
         self.assertIn('Lista', self.navegador.title)
 
         # Consulta la seccion h1.
-        header_text = self.navegador.find_element_by_tag_name('h1')
+        header_text = self.navegador.find_element_by_tag_name('h1').text
         self.assertIn('Hacer', header_text)
 
         # Agrega un nuevo item.
         inputbox = self.navegador.find_element_by_id('id_new_item')
         self.assertEqual(
                 inputbox.get_attribute('placeholder'),
-                'Pon un item para hacer.'
+                'Pon un item.'
         )
         inputbox.send_keys('Comprar una pluma de pajaro.')
         inputbox.send_keys(Keys.ENTER)
@@ -34,9 +35,10 @@ class NuevoVisitorTest(unittest.TestCase):
         # Ahora aparece el nuevo item agregado por el usuario.
         # Comprar una pluma de pajaro.
         tabla = self.navegador.find_element_by_id('id_list_table')
-        filas = table.find_element_by_tag_name('tr')
+        filas = tabla.find_elements_by_tag_name('tr')
         self.assertTrue(
-                any(fila.text == '1. Comprar una pluma de pajaro' for fila in filas)
+                any(fila.text == '1. Comprar una pluma de pajaro' for fila in filas),
+                "No hay ningun item nuevo."
         )
 
         self.fail('Test finalizado.')
