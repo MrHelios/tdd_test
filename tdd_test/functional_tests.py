@@ -11,9 +11,34 @@ class NuevoVisitorTest(unittest.TestCase):
         self.navegador.quit()
 
     def test_can_start_list_retrieve(self):
-        self.navegador.get('http://localhost:8000')
+        # Entrar a la pagina principal.
+        self.navegador.get('http://localhost:8000/')
 
-        self.assertIn('To-Do', self.navegador.title)
+        # El cliente mira el titulo.
+        self.assertIn('Lista', self.navegador.title)
+
+        # Consulta la seccion h1.
+        header_text = self.navegador.find_element_by_tag_name('h1')
+        self.assertIn('Hacer', header_text)
+
+        # Agrega un nuevo item.
+        inputbox = self.navegador.find_element_by_id('id_new_item')
+        self.assertEqual(
+                inputbox.get_attribute('placeholder'),
+                'Pon un item para hacer.'
+        )
+        inputbox.send_keys('Comprar una pluma de pajaro.')
+        inputbox.send_keys(Keys.ENTER)
+
+        # En este momento la pagina se actualiza.
+        # Ahora aparece el nuevo item agregado por el usuario.
+        # Comprar una pluma de pajaro.
+        tabla = self.navegador.find_element_by_id('id_list_table')
+        filas = table.find_element_by_tag_name('tr')
+        self.assertTrue(
+                any(fila.text == '1. Comprar una pluma de pajaro' for fila in filas)
+        )
+
         self.fail('Test finalizado.')
 
 if __name__ == '__main__':
