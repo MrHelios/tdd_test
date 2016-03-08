@@ -47,13 +47,25 @@ class ListAndItemModelTest(TestCase):
 class ListViewTest(TestCase):
 
     def test_list_template(self):
-        response = self.client.get('/lists/la-Lista/')
+        list_ = List.objects.create()
+        response = self.client.get('/lists/%d/' % (list_.id,))
         self.assertTemplateUsed(response, 'list.html')
 
-    def test_display_all_items(self):
-        list_ = List.objects.create()
-        Item.objects.create(text='item 1', list=list_)
-        Item.objects.create(text='item 2', list=list_)        
+    def test_display_solo_items_segun_list(self):
+        correct_list = List.objects.create()
+        Item.objects.create(text='item 1', list=correct_list)
+        Item.objects.create(text='item 2', list=correct_list)
+
+        otra_list = List.objects.create()
+        Item.objects.create(text='otro item 1', list=otra_list)
+        Item.objects.create(text='otro item 2', list=otra_list)
+
+        response = self.client.get('/lists/%d/' % (correct_list.id,))
+
+        self.assertContains(response, 'item 1')
+        self.assertContains(response, 'item 2')
+        self.assertNotContains(response, 'otro item 1')
+        self.assertNotContains(response, 'otro item 2')
 
 class NewLiveTest(TestCase):
 
@@ -71,5 +83,5 @@ class NewLiveTest(TestCase):
             '/lists/new',
             data={'item_text': 'Un nuevo item'}
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/lists/la-Lista/')
+        new_list = List.objects.first()
+        self.assertRedirects(response, '/lists/%d/' % (new_list.id))

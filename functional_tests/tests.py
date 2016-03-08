@@ -22,8 +22,7 @@ class NuevoVisitorTest(LiveServerTestCase):
         inputbox.send_keys(fila_text)
         inputbox.send_keys(Keys.ENTER)
 
-        edit_list_url = self.navegador.current_url
-        self.assertRegex(edit_list_url, '/lists/.+')
+        self.assertRegex(self.navegador.current_url, 'lists/.+')
 
         self.check_fila_tabla(fila_text)
 
