@@ -1,8 +1,9 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import unittest
 
-class NuevoVisitorTest(unittest.TestCase):
+class NuevoVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         self.navegador = webdriver.Firefox()
@@ -27,7 +28,7 @@ class NuevoVisitorTest(unittest.TestCase):
 
     def test_can_start_list_retrieve(self):
         # Entrar a la pagina principal.
-        self.navegador.get('http://localhost:8000/')
+        self.navegador.get(self.live_server_url)
 
         # El cliente mira el titulo.
         self.assertIn('Lista', self.navegador.title)
