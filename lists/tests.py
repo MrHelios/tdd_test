@@ -18,35 +18,6 @@ class HomePageTest(TestCase):
         html_esperado = render_to_string('home.html', request=request)
         self.assertEqual(response.content.decode(), html_esperado)
 
-    def test_home_page_POST(self):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['item_text'] = 'Un nuevo item'
-
-        response = home_page(request)
-
-        self.assertEqual(Item.objects.count(), 1)
-        nuevo_item = Item.objects.first()
-        self.assertEqual(nuevo_item.text, 'Un nuevo item')
-
-        html_esperado = render_to_string(
-                'home.html',
-                {'new_item_text': 'Un nuevo item'}, request=request)
-
-    def test_home_pagina_solo_guardado_items(self):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['item_text'] = 'Una nueva lista item'
-
-        response = home_page(request)
-
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
-        self.assertEqual(new_item.text, 'Una nueva lista item')
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
-
     def test_home_pagina_display_toda_lista(self):
         Item.objects.create(text='item 1')
         Item.objects.create(text='item 2')
@@ -75,3 +46,49 @@ class ItemModelTest(TestCase):
         segundo_item_guardado = items_guardados[1]
         self.assertEqual(primer_item_guardado.text, 'El primer Item.')
         self.assertEqual(segundo_item_guardado.text, 'El segundo Item.')
+
+class ListViewTest(TestCase):
+
+    def test_list_template(self):
+        response = self.client.get('/lists/la-Lista/')
+        self.assertTemplateUsed(response, 'list.html')
+
+    def test_display_all_items(self):
+        Item.objects.create(text='item 1')
+        Item.objects.create(text='item 2')
+
+        response = self.client.get('/lists/la-Lista/')
+
+        self.assertContains(response, 'item 1')
+        self.assertContains(response, 'item 2')
+
+class NewLiveTest(TestCase):
+
+    def test_home_page_POST(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'Un nuevo item'
+
+        response = home_page(request)
+
+        self.assertEqual(Item.objects.count(), 1)
+        nuevo_item = Item.objects.first()
+        self.assertEqual(nuevo_item.text, 'Un nuevo item')
+
+        html_esperado = render_to_string(
+                'home.html',
+                {'new_item_text': 'Un nuevo item'}, request=request)
+
+    def test_home_pagina_solo_guardado_items(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'Una nueva lista item'
+
+        response = home_page(request)
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'Una nueva lista item')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/lists/la-Lista/')
