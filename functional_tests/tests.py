@@ -2,6 +2,7 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import unittest
+import time
 
 class NuevoVisitorTest(LiveServerTestCase):
 
@@ -11,6 +12,25 @@ class NuevoVisitorTest(LiveServerTestCase):
 
     def tearDown(self):
         self.navegador.quit()
+
+    def test_layout_styling(self):
+        self.navegador.get(self.live_server_url)
+        self.navegador.set_window_size(1024, 768)
+
+        inputbox = self.navegador.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(
+            inputbox.location['x'] + inputbox.size['width'] / 2,
+            512,
+            delta=5
+        )
+
+        inputbox.send_keys('testing\n')
+        inputbox = self.navegador.find_element_by_id('id_new_item')
+        self.assertAlmostEqual(
+            inputbox.location['x'] + inputbox.size['width'] / 2,
+            512,
+            delta=5
+        )
 
     def check_input(self, fila_text):
         # Agrega un nuevo item.
@@ -22,7 +42,9 @@ class NuevoVisitorTest(LiveServerTestCase):
         inputbox.send_keys(fila_text)
         inputbox.send_keys(Keys.ENTER)
 
-        self.assertRegex(self.navegador.current_url, 'lists/.+')
+        time.sleep(2)
+
+        self.assertRegex(self.navegador.current_url, '/lists/.+')
 
         self.check_fila_tabla(fila_text)
 

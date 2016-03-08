@@ -67,21 +67,35 @@ class ListViewTest(TestCase):
         self.assertNotContains(response, 'otro item 1')
         self.assertNotContains(response, 'otro item 2')
 
+    def test_pasar_lista_template(self):
+        otra_list = List.objects.create()
+        correct_list = List.objects.create()
+        response = self.client.get('/lists/%d/' % (correct_list.id))
+        self.assertEqual(response.context['list'], correct_list)
+
 class NewLiveTest(TestCase):
 
     def test_guardar_POST_request(self):
+        otro_list = List.objects.create()
+        correct_list = List.objects.create()
+
         self.client.post(
-            '/lists/new',
+            '/lists/%d/add_item' % (correct_list.id,),
             data={'item_text': 'Un nuevo item'}
         )
+
         self.assertEqual(Item.objects.count(), 1)
         new_item = Item.objects.first()
         self.assertEqual(new_item.text, 'Un nuevo item')
+        self.assertEqual(new_item.list, correct_list)
 
     def test_redirect_desp_POST(self):
+        otro_list = List.objects.create()
+        correct_list = List.objects.create()
+
         response = self.client.post(
-            '/lists/new',
+            '/lists/%d/add_item' % (correct_list.id,),
             data={'item_text': 'Un nuevo item'}
         )
-        new_list = List.objects.first()
-        self.assertRedirects(response, '/lists/%d/' % (new_list.id))
+
+        self.assertRedirects(response, '/lists/%d/' % (correct_list.id))
