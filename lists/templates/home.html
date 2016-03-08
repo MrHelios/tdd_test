@@ -5,9 +5,10 @@
     <body>
         <h1>Hacer</h1>
 
-            <form method="POST">
+            <form method="POST" action="/lists/new">
                 <input name="item_text" id="id_new_item" placeholder="Pon un item." />
                 {% csrf_token %}
             </form>
+
     </body>
 </html>
